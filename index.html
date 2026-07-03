@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lock — in your best</title>
+  <meta name="description" content="Lock helps League players stay focused on their own champion pool during champ select." />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="home">
+<header class="topbar">
+  <div class="container nav">
+    <a class="brand" href="index.html" aria-label="Lock home">
+      <img src="assets/lock-logo.svg" alt="Lock logo" />
+    </a>
+
+    <button class="mobile-toggle" data-menu-toggle aria-label="Toggle navigation">☰</button>
+
+    <nav class="nav-links" data-nav-links>
+      <a href="index.html" data-nav="home">Home</a>
+      <a href="download.html" data-nav="download" class="nav-cta">Download</a>
+      <a href="info.html" data-nav="info">Information</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="kicker"><span class="pulse"></span> Desktop focus tool for League</div>
+        <h1>Stay locked in your best.</h1>
+        <p>
+          Lock exists because champ select can get messy fast. Players often hover random picks,
+          overthink matchups, or forget the champions they actually trained. Lock keeps your own
+          champion pool visible and warns you when you drift off it.
+        </p>
+        <p>
+          It is built to be simple: choose your 2–5 best champions, sync your public profile,
+          and let Lock quietly help you stay disciplined.
+        </p>
+        <div class="actions">
+          <a class="btn primary" href="download.html">Download Lock</a>
+          <a class="btn" href="#why">Why it exists</a>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <div class="app-window">
+          <div class="window-top">
+            <div class="window-title">Live Lock status</div>
+            <span class="status-dot" title="Auto-sync active"></span>
+          </div>
+
+          <div class="status-grid">
+            <div class="mini-card"><span>League Client</span><strong>Connected</strong></div>
+            <div class="mini-card"><span>Champ Select</span><strong>Waiting</strong></div>
+            <div class="mini-card"><span>Current pick</span><strong>None</strong></div>
+            <div class="mini-card"><span>Auto-sync</span><strong>Active</strong></div>
+          </div>
+
+          <div class="mini-card">
+            <span>Your Lock pool</span>
+            <div class="pool-preview" style="margin-top: 12px;">
+              <div class="champ-chip"><div class="champ-icon"></div>Viktor</div>
+              <div class="champ-chip"><div class="champ-icon"></div>Twisted Fate</div>
+              <div class="champ-chip"><div class="champ-icon"></div>Ahri</div>
+              <div class="champ-chip"><div class="champ-icon"></div>Akali</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="why">
+    <div class="container">
+      <h2>Why Lock exists</h2>
+      <p class="section-lead">
+        Lock is not made to play the game for you. It is made to protect the work you already put in.
+        If you have a ranked champion pool, Lock keeps that pool close, visible, and easy to respect.
+      </p>
+
+      <div class="cards">
+        <div class="panel">
+          <h3>Less overload</h3>
+          <p>League has too many choices in champ select. Lock narrows your attention back to your own plan.</p>
+        </div>
+        <div class="panel">
+          <h3>Better discipline</h3>
+          <p>When you hover something outside your pool, Lock gives a small reminder before you lock in.</p>
+        </div>
+        <div class="panel">
+          <h3>Simple profiles</h3>
+          <p>Show your public nickname, rank, stats, and champion pool without exposing your email.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>What Lock does</h2>
+      <div class="cards">
+        <div class="panel">
+          <h3>Champion pool</h3>
+          <p>Choose 2–5 champions as your personal ranked pool.</p>
+        </div>
+        <div class="panel">
+          <h3>Champ-select alert</h3>
+          <p>Lock watches local champ select and warns when your current hover/pick is outside your pool.</p>
+        </div>
+        <div class="panel">
+          <h3>Stats and search</h3>
+          <p>Sync rank, winrate, KDA, champion pool, and search public Lock profiles.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <strong>Lock</strong> © <span data-year></span>
+      <div class="disclaimer">
+        Lock is an independent desktop app and is not endorsed by Riot Games. Riot Games, League of Legends, and all related properties are trademarks or registered trademarks of Riot Games, Inc.
+      </div>
+    </div>
+    <div>in your best</div>
+  </div>
+</footer>
+<script src="script.js"></script>
+</body>
+</html>
