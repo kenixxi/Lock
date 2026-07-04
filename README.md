@@ -1,63 +1,64 @@
-# Lock website for Cloudflare Pages
+# Lock
 
-This is a static website folder for the Lock desktop app.
+**Lock** is a desktop app for League of Legends players who want to stay focused on their own champion pool.
 
-## Files
+Slogan: **in your best**
 
-- `index.html` — main page
-- `download.html` — download page
-- `info.html` — empty information sections for later
-- `styles.css` — all design/styling
-- `script.js` — mobile navigation and active page highlighting
-- `assets/lock-logo.svg` — logo
-- `assets/favicon.svg` — browser icon
-- `downloads/` — place your app ZIP here
+Lock helps players avoid random panic picks, overthinking, and champ-select chaos by keeping their selected champion pool visible and giving a small reminder when they hover or pick outside of it.
 
-## How to add your app download
+---
 
-1. Build Lock on Windows with:
+## Download
 
-   `build_Lock_exe.bat`
+Download the latest Windows version here:
 
-2. Go to:
+[Download Lock](https://github.com/kenixxi/Lock/releases/download/v1.0.0/Lock.zip)
 
-   `dist\Lock`
+After downloading:
 
-3. Zip the whole `Lock` folder.
+1. Extract `Lock.zip`
+2. Open the extracted `Lock` folder
+3. Run `Lock.exe`
 
-   Important: zip the full folder, not only `Lock.exe`.
+Important: keep the full extracted folder together. Do not move only `Lock.exe`.
 
-4. Rename the zip file to:
+---
 
-   `Lock.zip`
+## What Lock does
 
-5. Put it inside:
+Lock is designed to be simple and clean.
 
-   `lock-website/downloads/Lock.zip`
+Main features:
 
-6. Upload the full `lock-website` folder to Cloudflare Pages.
+- Create your own champion pool
+- Choose 2–5 champions
+- Detect League champ select through the local League Client
+- Show an alert if your hover/pick is outside your pool
+- Sync your public profile
+- Show rank, LP, winrate, KDA, and champion pool
+- Search other public Lock profiles
+- Auto-sync Solo/Duo stats every 30 minutes while Lock is open
+- Modern dark desktop interface
 
-The download button on `download.html` already points to:
+---
 
-`downloads/Lock.zip`
+## Why Lock exists
 
-## Editing text
+Ranked games are easier to improve in when you have discipline.
 
-You can edit the pages with Notepad, VS Code, or any text editor.
+Lock exists because champion select can make players overthink, tilt, or pick champions they barely practice. The app helps you stay focused on the champions you actually trust.
 
-Most text is inside:
-- `index.html`
-- `download.html`
-- `info.html`
+Lock does not play the game for you.  
+Lock does not choose champions for you.  
+Lock simply helps you stay **in your best**.
 
-Most colors/layout are inside:
-- `styles.css`
+---
 
+## Website
 
-## GitHub Release download
+The Lock website is hosted with GitHub Pages.
 
-The download button now points to:
+Website:
 
-https://github.com/kenixxi/Lock/releases/download/v1.0.0/Lock.zip
-
-This means the Cloudflare Pages website stays small, while the app ZIP downloads from GitHub Releases.
+```text
+https://kenixxi.github.io/Lock/
