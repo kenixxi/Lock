@@ -12,7 +12,7 @@ Lock helps players avoid random panic picks, overthinking, and champ-select chao
 
 Download the latest Windows version here:
 
-[Download Lock](https://github.com/kenixxi/Lock/releases/download/v1.2.1/Lock.zip)
+[Download Lock](https://github.com/kenixxi/Lock/releases/download/v1.2.2/Lock.zip)
 
 After downloading:
 
