@@ -1,6 +1,16 @@
 const menuButton = document.querySelector(".menu-button");
 const navLinks = document.querySelector(".nav-links");
 
+const directDownloadUrl =
+  "https://github.com/kenixxi/Lock/releases/latest/download/Lock.zip";
+
+document
+  .querySelectorAll('a[href="https://github.com/kenixxi/Lock/releases/latest"]')
+  .forEach((link) => {
+    link.href = directDownloadUrl;
+    link.setAttribute("download", "Lock.zip");
+  });
+
 if (menuButton && navLinks) {
   menuButton.addEventListener("click", () => {
     const open = navLinks.classList.toggle("open");
