@@ -1,20 +1,10 @@
-const toggle = document.querySelector("[data-menu-toggle]");
-const nav = document.querySelector("[data-nav-links]");
-
-if (toggle && nav) {
-  toggle.addEventListener("click", () => {
-    nav.classList.toggle("open");
-  });
-}
-
-const currentPage = document.body.dataset.page;
-document.querySelectorAll("[data-nav]").forEach((link) => {
-  if (link.dataset.nav === currentPage) {
-    link.classList.add("active");
-  }
-});
-
-const year = document.querySelector("[data-year]");
-if (year) {
-  year.textContent = new Date().getFullYear();
-}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About Lock</title>
+  <meta http-equiv="refresh" content="0; url=index.html#features">
+</head>
+<body><p>Opening <a href="index.html#features">Lock features</a>…</p></body>
+</html>
