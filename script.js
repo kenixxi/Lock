@@ -1,10 +1,28 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>About Lock</title>
-  <meta http-equiv="refresh" content="0; url=index.html#features">
-</head>
-<body><p>Opening <a href="index.html#features">Lock features</a>…</p></body>
-</html>
+const menuButton = document.querySelector(".menu-button");
+const navLinks = document.querySelector(".nav-links");
+
+if (menuButton && navLinks) {
+  menuButton.addEventListener("click", () => {
+    const open = navLinks.classList.toggle("open");
+    menuButton.setAttribute("aria-expanded", String(open));
+    menuButton.textContent = open ? "×" : "☰";
+  });
+  navLinks.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      navLinks.classList.remove("open");
+      menuButton.setAttribute("aria-expanded", "false");
+      menuButton.textContent = "☰";
+    });
+  });
+}
+
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) entry.target.classList.add("is-visible");
+    });
+  },
+  { threshold: 0.12 },
+);
+
+document.querySelectorAll(".reveal").forEach((element) => observer.observe(element));
