@@ -1,12 +1,660 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Lock is a champion-pool discipline app for League of Legends with live off-pick warnings, ranked profiles and Living DNA.">
-  <title>Lock — Stay in Your Best</title>
-  <link rel="icon" href="assets/lock-logo.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lock — in your best</title>
+<meta name="description" content="Lock in your best. A Windows desktop app that watches champ select live and warns you before an off-pool pick becomes a ranked mistake.">
+<meta property="og:title" content="Lock — in your best">
+<meta property="og:description" content="Champion-pool discipline for League of Legends. Free Windows app.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/Lock.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Public+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0B1015;
+  --steel:#131C24;
+  --panel:#18242E;
+  --edge:#243642;
+  --brass:#C8A45C;
+  --brass-dim:#8A7239;
+  --alarm:#D9483B;
+  --mist:#8FA3AE;
+  --clear:#EDF2F4;
+
+  --display:'Archivo',system-ui,sans-serif;
+  --body:'Public Sans',system-ui,sans-serif;
+  --data:'JetBrains Mono',ui-monospace,monospace;
+
+  --gut:clamp(20px,5vw,64px);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--void);
+  color:var(--clear);
+  font-family:var(--body);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+
+.wrap{max-width:1180px;margin:0 auto;padding:0 var(--gut)}
+
+/* ---------- type ---------- */
+.tag{
+  font-family:var(--data);
+  font-size:11px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--brass);
+}
+.tag--mist{color:var(--mist)}
+h1,h2,h3{font-family:var(--display);font-weight:900;line-height:.98;letter-spacing:-.03em}
+h1{font-size:clamp(44px,7.4vw,92px)}
+h2{font-size:clamp(30px,4.6vw,56px)}
+h3{font-size:19px;letter-spacing:-.01em;line-height:1.25}
+.lede{font-size:clamp(16px,1.7vw,19px);color:var(--mist);max-width:52ch}
+.rule{height:1px;background:linear-gradient(90deg,var(--brass-dim),transparent);border:0}
+
+/* ---------- nav ---------- */
+nav{
+  position:sticky;top:0;z-index:60;
+  background:rgba(11,16,21,.86);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--edge);
+}
+.nav-in{display:flex;align-items:center;gap:28px;height:66px}
+.brand{display:flex;align-items:center;gap:11px;font-family:var(--display);font-weight:900;letter-spacing:.02em;font-size:19px}
+.mark{width:26px;height:26px;flex:none}
+.nav-links{display:flex;gap:26px;margin-left:auto;font-size:14px;color:var(--mist)}
+.nav-links a:hover{color:var(--clear)}
+.btn{
+  display:inline-flex;align-items:center;gap:9px;
+  font-family:var(--data);font-size:12px;letter-spacing:.13em;text-transform:uppercase;
+  padding:11px 18px;border:1px solid var(--brass-dim);color:var(--brass);
+  background:transparent;cursor:pointer;transition:.18s;
+}
+.btn:hover{background:var(--brass);color:var(--void);border-color:var(--brass)}
+.btn--solid{background:var(--brass);color:var(--void);border-color:var(--brass)}
+.btn--solid:hover{filter:brightness(1.12)}
+.btn--ghost{border-color:var(--edge);color:var(--mist)}
+.btn--ghost:hover{background:var(--edge);color:var(--clear);border-color:var(--edge)}
+@media(max-width:820px){.nav-links{display:none}}
+
+/* ---------- hero ---------- */
+.hero{padding:clamp(56px,9vw,104px) 0 clamp(40px,6vw,72px);position:relative}
+.hero::before{
+  content:"";position:absolute;inset:0;z-index:-1;
+  background:
+    radial-gradient(680px 380px at 78% 8%,rgba(200,164,92,.09),transparent 68%),
+    radial-gradient(520px 320px at 8% 4%,rgba(36,54,66,.5),transparent 70%);
+}
+.hero h1{margin:16px 0 20px;max-width:15ch}
+.hero h1 em{font-style:normal;color:var(--brass)}
+
+/* slogan lockup — "Lock in" (the call) / "your best" (the pool) */
+.hero-title{
+  display:flex;flex-direction:column;
+  font-size:clamp(52px,10vw,132px);
+  letter-spacing:-.052em;line-height:.86;
+  margin:20px 0 26px;max-width:none;
+}
+.ln{display:block}
+.ln-2{color:var(--brass)}
+.ln-1{animation:rise .7s cubic-bezier(.2,.75,.3,1) both}
+.ln-2{animation:rise .7s cubic-bezier(.2,.75,.3,1) .13s both}
+@keyframes rise{from{opacity:0;transform:translateY(.22em)}to{opacity:1;transform:none}}
+
+.slogan{
+  font-family:var(--data);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--brass-dim);border-left:1px solid var(--edge);padding-left:11px;margin-left:2px;
+}
+@media(max-width:680px){.slogan{display:none}}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px;align-items:center}
+.hero-note{font-family:var(--data);font-size:11px;color:var(--mist);letter-spacing:.1em}
+
+/* ---------- vault (signature) ---------- */
+.vault{margin-top:clamp(40px,6vw,64px)}
+.vault-head{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;justify-content:space-between;margin-bottom:14px}
+.phases{display:flex;flex-wrap:wrap;gap:6px}
+.phase-btn{
+  font-family:var(--data);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  padding:7px 11px;border:1px solid var(--edge);background:transparent;color:var(--mist);
+  cursor:pointer;transition:.16s;
+}
+.phase-btn:hover{border-color:var(--brass-dim);color:var(--clear)}
+.phase-btn[aria-pressed="true"]{border-color:var(--brass);color:var(--void);background:var(--brass)}
+
+.rack{
+  position:relative;
+  border:1px solid var(--edge);
+  background:linear-gradient(180deg,var(--steel),#0D141A);
+  padding:clamp(16px,2.6vw,26px);
+  overflow:hidden;
+}
+.rack::after{ /* alarm sweep */
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(100deg,transparent 20%,rgba(217,72,59,.16) 50%,transparent 80%);
+  transform:translateX(-120%);opacity:0;
+}
+.rack[data-phase="alarm"]::after{opacity:1;animation:sweep 1.5s ease-in-out infinite}
+@keyframes sweep{to{transform:translateX(120%)}}
+
+.readout{
+  display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center;
+  font-family:var(--data);font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--mist);border-bottom:1px solid var(--edge);padding-bottom:13px;margin-bottom:18px;
+}
+.readout b{color:var(--clear);font-weight:400}
+.led{width:7px;height:7px;border-radius:50%;background:var(--mist);flex:none;transition:.25s}
+.rack[data-phase="dormant"] .led{background:#3C4C57}
+.rack[data-phase="armed"] .led,
+.rack[data-phase="scanning"] .led,
+.rack[data-phase="locked"] .led{background:var(--brass);box-shadow:0 0 9px var(--brass)}
+.rack[data-phase="alarm"] .led{background:var(--alarm);box-shadow:0 0 9px var(--alarm);animation:blink .7s steps(2) infinite}
+@keyframes blink{50%{opacity:.25}}
+
+.chambers{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(7px,1.1vw,13px)}
+.ch{
+  position:relative;aspect-ratio:3/4;
+  border:1px solid var(--edge);
+  background:var(--panel);
+  overflow:hidden;
+  transition:transform .3s cubic-bezier(.2,.7,.3,1),border-color .3s,opacity .3s,filter .3s;
+}
+.ch img{width:100%;height:100%;object-fit:cover;object-position:center 18%;opacity:.5;transition:.3s;filter:grayscale(.75) contrast(1.05)}
+
+/* cinematic splash on lock-in */
+.splash{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .5s;z-index:0}
+.splash img{width:100%;height:100%;object-fit:cover;object-position:center 22%}
+.splash::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(11,16,21,.55),rgba(11,16,21,.92));
+}
+.rack[data-phase="locked"] .splash{opacity:1}
+.rack .readout,.rack .chambers,.rack .foreign{position:relative;z-index:1}
+.ch-name{
+  position:absolute;left:0;right:0;bottom:0;padding:8px 9px;
+  font-family:var(--data);font-size:10px;letter-spacing:.11em;text-transform:uppercase;
+  background:linear-gradient(transparent,rgba(11,16,21,.94));
+  color:var(--mist);transition:.3s;
+}
+.ch-state{
+  position:absolute;top:7px;left:7px;
+  font-family:var(--data);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 6px;border:1px solid var(--edge);color:var(--mist);
+  background:rgba(11,16,21,.7);opacity:0;transition:.25s;
+}
+
+/* phase states */
+.rack[data-phase="dormant"] .ch{opacity:.42;filter:saturate(.25)}
+.rack[data-phase="armed"] .ch,
+.rack[data-phase="scanning"] .ch,
+.rack[data-phase="locked"] .ch,
+.rack[data-phase="alarm"] .ch{border-color:var(--brass-dim)}
+.rack[data-phase="armed"] .ch img,
+.rack[data-phase="scanning"] .ch img,
+.rack[data-phase="alarm"] .ch img{opacity:.72;filter:grayscale(.3)}
+
+/* active hover chamber during scan */
+.rack[data-phase="scanning"] .ch.is-active,
+.rack[data-phase="locked"] .ch.is-active{
+  border-color:var(--brass);transform:translateY(-7px);
+  box-shadow:0 0 0 1px var(--brass),0 14px 34px rgba(0,0,0,.5);
+}
+.rack[data-phase="scanning"] .ch.is-active img,
+.rack[data-phase="locked"] .ch.is-active img{opacity:1;filter:none}
+.rack[data-phase="scanning"] .ch.is-active .ch-name,
+.rack[data-phase="locked"] .ch.is-active .ch-name{color:var(--brass)}
+.rack[data-phase="scanning"] .ch.is-active .ch-state,
+.rack[data-phase="locked"] .ch.is-active .ch-state{opacity:1;border-color:var(--brass);color:var(--brass)}
+.rack[data-phase="locked"] .ch:not(.is-active){opacity:.3}
+
+/* sealed */
+.rack[data-phase="scanning"] .ch.is-sealed,
+.rack[data-phase="alarm"] .ch.is-sealed{opacity:.3}
+.ch.is-sealed::before{
+  content:"";position:absolute;inset:0;opacity:0;transition:.3s;
+  background:repeating-linear-gradient(45deg,transparent,transparent 5px,rgba(143,163,174,.16) 5px,rgba(143,163,174,.16) 6px);
+}
+.rack[data-phase="scanning"] .ch.is-sealed::before,
+.rack[data-phase="alarm"] .ch.is-sealed::before{opacity:1}
+
+/* alarm */
+.rack[data-phase="alarm"] .ch{border-color:rgba(217,72,59,.4)}
+
+.foreign{
+  display:none;align-items:center;gap:13px;margin-top:16px;
+  border:1px solid var(--alarm);background:rgba(217,72,59,.09);padding:13px 15px;
+}
+.rack[data-phase="alarm"] .foreign{display:flex}
+.foreign-art{
+  width:44px;height:44px;flex:none;object-fit:cover;object-position:center 12%;
+  border:1px solid var(--alarm);filter:grayscale(.3);
+}
+.foreign p{font-size:13.5px;line-height:1.4}
+.foreign b{color:var(--alarm);font-weight:700}
+.foreign span{color:var(--mist);display:block;font-size:12px}
+
+@media(max-width:620px){
+  .chambers{grid-template-columns:repeat(3,1fr)}
+  .ch:nth-child(n+4){display:none}
+}
+
+/* ---------- sections ---------- */
+section{padding:clamp(64px,9vw,120px) 0}
+.sec-head{max-width:60ch;margin-bottom:clamp(32px,4.5vw,54px)}
+.sec-head h2{margin:14px 0 16px}
+.sec-head h2 em{font-style:normal;color:var(--brass)}
+
+/* problem */
+.problem{border-top:1px solid var(--edge);background:var(--steel)}
+.costs{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:1px;background:var(--edge);border:1px solid var(--edge)}
+.cost{background:var(--steel);padding:26px 22px}
+.cost .tag{color:var(--alarm)}
+.cost p{margin-top:11px;font-size:14.5px;color:var(--mist)}
+
+/* features */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(272px,1fr));gap:1px;background:var(--edge);border:1px solid var(--edge)}
+.card{background:var(--void);padding:clamp(22px,2.6vw,30px);transition:background .2s}
+.card:hover{background:var(--steel)}
+.card h3{margin:15px 0 10px}
+.card p{font-size:14.5px;color:var(--mist)}
+
+/* vault phases timeline — a real sequence, so it's numbered */
+.timeline{border-left:1px solid var(--edge);margin-left:6px}
+.tl{position:relative;padding:0 0 34px 30px}
+.tl:last-child{padding-bottom:0}
+.tl::before{
+  content:"";position:absolute;left:-4.5px;top:6px;width:8px;height:8px;
+  background:var(--brass);border-radius:50%;
+}
+.tl-n{font-family:var(--data);font-size:10.5px;letter-spacing:.16em;color:var(--brass-dim)}
+.tl h3{margin:7px 0 7px;font-size:17px}
+.tl p{font-size:14.5px;color:var(--mist);max-width:56ch}
+
+/* setup */
+.steps{counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;background:var(--edge);border:1px solid var(--edge)}
+.step{background:var(--void);padding:26px 22px;counter-increment:s;position:relative}
+.step::before{
+  content:counter(s,decimal-leading-zero);
+  font-family:var(--display);font-weight:900;font-size:34px;color:var(--edge);
+  display:block;line-height:1;margin-bottom:13px;
+}
+.step h3{font-size:16px;margin-bottom:8px}
+.step p{font-size:13.5px;color:var(--mist)}
+
+.note{border:1px solid var(--edge);border-left:2px solid var(--brass);padding:22px 24px;margin-top:26px;background:var(--steel)}
+.note h3{font-size:16px;margin-bottom:9px}
+.note p{font-size:14.5px;color:var(--mist);max-width:64ch}
+.path{font-family:var(--data);font-size:12.5px;color:var(--brass);background:var(--void);border:1px solid var(--edge);padding:9px 12px;display:inline-block;margin-top:13px;word-break:break-all}
+
+/* creator */
+.creator{border-top:1px solid var(--edge);background:var(--steel)}
+.creator-in{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(26px,4vw,60px);align-items:center}
+.creator p{color:var(--mist);margin:16px 0 22px;max-width:52ch}
+.creator-links{display:flex;flex-wrap:wrap;gap:11px}
+.avatar{width:clamp(120px,17vw,182px);border:1px solid var(--edge);background:var(--void)}
+@media(max-width:720px){.creator-in{grid-template-columns:1fr}.avatar{display:none}}
+
+/* close */
+.close{text-align:center;border-top:1px solid var(--edge)}
+.close h2{margin:16px auto 22px;max-width:16ch}
+.close h2 em{font-style:normal;color:var(--brass)}
+.close .btn{margin-top:8px}
+
+footer{border-top:1px solid var(--edge);padding:44px 0 56px;background:var(--steel)}
+.foot-in{display:flex;flex-wrap:wrap;gap:22px;align-items:center;justify-content:space-between}
+.foot-links{display:flex;gap:22px;font-size:13.5px;color:var(--mist)}
+.foot-links a:hover{color:var(--brass)}
+.disclaimer{font-size:11.5px;color:#5C6D78;margin-top:26px;max-width:70ch;line-height:1.6}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+</style>
 </head>
-<body><link rel="preload" as="image" href="assets/lock-logo.svg"/><link rel="preload" as="image" href="assets/champions/twisted-fate-splash.jpg"/><link rel="preload" as="image" href="assets/champions/fizz.png"/><link rel="preload" as="image" href="assets/champions/talon.png"/><link rel="preload" as="image" href="assets/champions/viktor.png"/><link rel="preload" as="image" href="assets/champions/katarina.png"/><link rel="preload" as="image" href="assets/champions/twisted-fate.png"/><link rel="preload" as="image" href="assets/ranks/emerald.png"/><link rel="preload" as="image" href="assets/champions/camille.png"/><link rel="preload" as="image" href="assets/champions/fizz-splash.jpg"/><link rel="preload" as="image" href="assets/kaneki-creator-cutout.png"/><main><nav class="nav-shell" aria-label="Primary navigation"><a class="brand" href="#home" aria-label="Lock home"><img src="assets/lock-logo.svg" alt="Lock — in your best"/></a><button class="menu-button" aria-expanded="false" aria-label="Toggle navigation">☰</button><div class="nav-links "><a href="#home">Home</a><a href="#features">Features</a><a href="#dna">Lock DNA</a><a href="#tutorial">How to use</a><a href="#creator">Creator</a><a class="nav-download" href="https://github.com/kenixxi/Lock/releases/latest/download/Lock.zip" download="Lock.zip">Download v1.2.3 <span>↓</span></a></div></nav><section class="hero" id="home"><div class="ambient ambient-one"></div><div class="ambient ambient-two"></div><div class="hero-copy reveal is-visible"><div class="eyebrow"><span></span> WINDOWS DESKTOP APP · LEAGUE OF LEGENDS</div><h1>Stop panic picking.<br/><em>Play your best.</em></h1><p class="hero-lead">Lock keeps your champion pool visible, watches champ select live, and warns you before an off-pick becomes a ranked mistake.</p><div class="hero-actions"><a class="primary-cta" href="https://github.com/kenixxi/Lock/releases/latest/download/Lock.zip" download="Lock.zip"><span>Download Lock</span><b>↓</b></a><a class="secondary-cta" href="#features">See what it does <span>↓</span></a></div><div class="hero-proof"><div><strong>2–5</strong><span>champion pool</span></div><div><strong>LIVE</strong><span>hover detection</span></div><div><strong>LOCAL</strong><span>League connection</span></div></div></div><div class="hero-art reveal is-visible"><div class="splash-frame"><img class="hero-splash" src="assets/champions/twisted-fate-splash.jpg" alt="Twisted Fate official League of Legends splash art"/><div class="splash-shade"></div><div class="hero-lock"><span class="lock-symbol">▣</span><div><small>LOCK STATUS</small><strong>POOL SECURED</strong></div><i></i></div><div class="hero-pool"><small>YOUR LOCK POOL</small><div class="champion-row compact"><div class="champion-token" style="--delay:0s"><img src="assets/champions/fizz.png" alt="Fizz"/></div><div class="champion-token" style="--delay:0.08s"><img src="assets/champions/talon.png" alt="Talon"/></div><div class="champion-token" style="--delay:0.16s"><img src="assets/champions/viktor.png" alt="Viktor"/></div><div class="champion-token" style="--delay:0.24s"><img src="assets/champions/katarina.png" alt="Katarina"/></div><div class="champion-token" style="--delay:0.32s"><img src="assets/champions/twisted-fate.png" alt="Twisted Fate"/></div></div></div></div><div class="hover-card good"><img src="assets/champions/fizz.png" alt="Fizz"/><div><small>CURRENT HOVER</small><strong>FIZZ</strong><span>IN YOUR POOL</span></div><b>✓</b></div><div class="rank-float"><img src="assets/ranks/emerald.png" alt="Emerald rank emblem"/><div><small>CURRENT RANK</small><strong>EMERALD II</strong><span>19 LP</span></div></div></div><a class="scroll-cue" href="#features">SCROLL TO EXPLORE <span>↓</span></a></section><section class="statement reveal"><p>THE PROBLEM</p><h2>Ranked games are often lost <em>before loading screen.</em></h2><div class="statement-grid"><span>Random last-second picks</span><span>Too many comfort options</span><span>Playing through tilt</span><span>Forgetting what actually works</span></div></section><section class="features section" id="features"><div class="section-heading reveal"><div><p class="kicker">WHAT LOCK OFFERS</p><h2>One system for your<br/><em>ranked identity.</em></h2></div><p>Not another scouting overlay. Lock is built around your own pool, your own form, and the decision in front of you.</p></div><div class="feature-grid"><article class="feature-card pool-card reveal"><div class="feature-meta"><span>01</span><b>REAL-TIME</b></div><div class="feature-visual pool-scan"><div class="champion-row compact"><div class="champion-token" style="--delay:0s"><img src="assets/champions/fizz.png" alt="Fizz"/></div><div class="champion-token" style="--delay:0.08s"><img src="assets/champions/talon.png" alt="Talon"/></div><div class="champion-token" style="--delay:0.16s"><img src="assets/champions/viktor.png" alt="Viktor"/></div><div class="champion-token" style="--delay:0.24s"><img src="assets/champions/katarina.png" alt="Katarina"/></div><div class="champion-token" style="--delay:0.32s"><img src="assets/champions/twisted-fate.png" alt="Twisted Fate"/></div></div><small>5 CHAMPIONS · LOCKED</small></div><h3>Live champion-pool guard</h3><p>Every hover is checked against the champions you chose.</p></article><article class="feature-card reveal"><div class="feature-meta"><span>02</span><b>FOCUS</b></div><div class="feature-visual offpick-visual"><img src="assets/champions/camille.png" alt="Camille"/><div><small>OFF-PICK WARNING</small><strong>Camille is outside your pool.</strong><span>Return to your best.</span></div><b>!</b></div><h3>Off-pick warning</h3><p>A clean alert appears before hesitation becomes a bad pick.</p></article><article class="feature-card dna-card reveal"><div class="feature-meta"><span>03</span><b>IDENTITY</b></div><div class="feature-visual dna-visual"><div class="dna-mini" aria-hidden="true"><div class="dna-rung" style="--i:0"><i></i><b></b><i></i></div><div class="dna-rung" style="--i:1"><i></i><b></b><i></i></div><div class="dna-rung" style="--i:2"><i></i><b></b><i></i></div><div class="dna-rung" style="--i:3"><i></i><b></b><i></i></div><div class="dna-rung" style="--i:4"><i></i><b></b><i></i></div><div class="dna-rung" style="--i:5"><i></i><b></b><i></i></div><div class="dna-rung" style="--i:6"><i></i><b></b><i></i></div><div class="dna-rung" style="--i:7"><i></i><b></b><i></i></div><div class="dna-rung" style="--i:8"><i></i><b></b><i></i></div></div><div><small>DNA STATE</small><strong>STABLE</strong><span>DISCIPLINE 86%</span></div></div><h3>Living Lock DNA</h3><p>Your visual fingerprint bends, calms, and changes with your profile.</p></article><article class="feature-card reveal"><div class="feature-meta"><span>04</span><b>FORM</b></div><div class="feature-visual comfort-visual"><div><img src="assets/champions/fizz.png" alt="Fizz"/><span><strong>Fizz</strong><small>67% WR · 2.53 KDA</small></span><b>84</b></div><div><img src="assets/champions/talon.png" alt="Talon"/><span><strong>Talon</strong><small>58% WR · 2.12 KDA</small></span><b>71</b></div></div><h3>Real Comfort Zone</h3><p>Recent pool games are ranked using real win rate and KDA.</p></article><article class="feature-card reveal"><div class="feature-meta"><span>05</span><b>PROFILE</b></div><div class="feature-visual rank-visual"><img src="assets/ranks/emerald.png" alt="Emerald rank emblem"/><div><small>SOLO/DUO</small><strong>EMERALD II</strong><span>19 LP · 57% WR</span></div></div><h3>Your ranked profile</h3><p>Rank, LP, form, pool, and real tier emblems in one place.</p></article><article class="feature-card reveal"><div class="feature-meta"><span>06</span><b>STREAM</b></div><div class="feature-visual stream-visual"><span class="mini-lock">▣</span><div><small>STATUS</small><strong><i></i> PICKING</strong></div><div><small>SESSION</small><strong>0W <i></i> 0L</strong></div></div><h3>Built for streaming</h3><p>A compact OBS overlay makes your Lock status part of the stream.</p></article></div></section><section class="dna-section section" id="dna"><div class="dna-copy reveal"><p class="kicker">LIVING PLAYER FINGERPRINT</p><h2>Your form should<br/><em>look alive.</em></h2><p>Strong discipline creates a calm signature. Risk, instability, and a scattered pool bend and heat the DNA so you can see when something needs attention.</p><ul><li><span>01</span> Reacts to real profile data</li><li><span>02</span> Updates with ranked form</li><li><span>03</span> Shows comfort and danger zones</li></ul></div><div class="dna-stage reveal" aria-label="Animated Lock DNA preview"><img class="dna-backdrop" src="assets/champions/fizz-splash.jpg" alt="Fizz official League of Legends splash art"/><div class="dna-overlay"></div><div class="dna-grid"></div><div class="dna-title">LOCK DNA<small>LIVING PROFILE SIGNATURE</small></div><div class="dna-state"><span></span> STABLE SIGNATURE</div><div class="large-dna"><div class="dna-mini" aria-hidden="true"><div class="dna-rung" style="--i:0"><i></i><b></b><i></i></div><div class="dna-rung" style="--i:1"><i></i><b></b><i></i></div><div class="dna-rung" style="--i:2"><i></i><b></b><i></i></div><div class="dna-rung" style="--i:3"><i></i><b></b><i></i></div><div class="dna-rung" style="--i:4"><i></i><b></b><i></i></div><div class="dna-rung" style="--i:5"><i></i><b></b><i></i></div><div class="dna-rung" style="--i:6"><i></i><b></b><i></i></div><div class="dna-rung" style="--i:7"><i></i><b></b><i></i></div><div class="dna-rung" style="--i:8"><i></i><b></b><i></i></div></div></div><div class="dna-foot"><span>DISCIPLINE <strong>86%</strong></span><span>POOL FOCUS <strong>92%</strong></span><span>STABILITY <strong>81%</strong></span></div></div></section><section class="tutorial section" id="tutorial"><div class="tutorial-head reveal"><p class="kicker">SETUP GUIDE</p><h2>From download to<br/><em>your first warning.</em></h2><p>Lock reads the League Client&#x27;s local lockfile to understand when champ select starts and what you are hovering.</p></div><div class="critical-note reveal"><div class="critical-icon">!</div><div><small>IMPORTANT FOR POPUP DETECTION</small><h3>Keep Lock on <strong>Home</strong> or <strong>Profile</strong> while you queue.</h3><p>Leave either page open before champ select so live status and the off-pick popup work exactly as intended.</p></div><div class="page-pills"><span>⌂ HOME</span><span>♙ PROFILE</span></div></div><div class="tutorial-journey reveal"><article><b>01</b><div class="journey-icon client"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="8" width="38" height="27" rx="5"></rect><path d="M17 41h14M24 35v6"></path><path d="m24 14 3.2 6.5 7.2 1-5.2 5.1 1.2 7.2L24 30.4l-6.4 3.4 1.2-7.2-5.2-5.1 7.2-1L24 14Z"></path></svg><span>CLIENT</span></div><h3>Open League</h3><p>Start League Client on your PC.</p></article><i>→</i><article><b>02</b><div class="journey-icon file"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 5h16l9 9v29H12z"></path><path d="M28 5v10h9"></path><circle cx="23" cy="28" r="5"></circle><path d="m27 31 7 7m-2-2 3-3m-6 0 3-3"></path></svg><span>LOCKFILE</span></div><h3>Connect lockfile</h3><p>Automatic, or select it in Settings.</p></article><i>→</i><article><b>03</b><div class="journey-icon pool"><img src="assets/champions/fizz.png" alt="Fizz"/><img src="assets/champions/talon.png" alt="Talon"/><img src="assets/champions/viktor.png" alt="Viktor"/></div><h3>Choose 2–5</h3><p>Build your trusted champion pool.</p></article><i>→</i><article><b>04</b><div class="journey-icon pages"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 11 8-7 8 7v9h-6v-6h-4v6H4z"></path></svg><small>HOME</small></span><span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c.8-4.5 3.5-7 8-7s7.2 2.5 8 7"></path></svg><small>PROFILE</small></span></div><h3>Open Home/Profile</h3><p>Queue and let Lock watch the hover.</p></article></div><div class="lockfile-explainer reveal"><div class="lockfile-art"><div class="flow-node league-node"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="8" width="38" height="27" rx="5"></rect><path d="M17 41h14M24 35v6"></path><path d="m24 14 3.2 6.5 7.2 1-5.2 5.1 1.2 7.2L24 30.4l-6.4 3.4 1.2-7.2-5.2-5.1 7.2-1L24 14Z"></path></svg><span>LEAGUE</span></div><div class="flow-path"><i></i><i></i><i></i></div><div class="flow-file"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 5h16l9 9v29H12z"></path><path d="M28 5v10h9"></path><circle cx="23" cy="28" r="5"></circle><path d="m27 31 7 7m-2-2 3-3m-6 0 3-3"></path></svg><span>LOCKFILE</span></div><div class="flow-path"><i></i><i></i><i></i></div><div class="flow-node lock-node"><img src="assets/lock-logo.svg" alt="Lock"/></div><b>✓ LOCAL CONNECTION ACTIVE</b></div><div><p class="kicker">WHAT IS A LOCKFILE?</p><h3>A temporary local key created by League Client.</h3><p>It gives Lock the temporary local port and authorization required to read client state and champ select. It stays on your computer—no Riot password required.</p><code>C:\Riot Games\League of Legends\lockfile</code></div></div></section><section class="creator-section section reveal" id="creator"><div class="creator-copy"><p class="kicker">CREATOR &amp; OWNER</p><h2>Created and owned<br/><em>by KeniX.</em></h2><p>Lock, its visual system, and the original champion-pool focus concept are independently designed and developed by KeniX.</p></div><div class="creator-card"><span class="creator-mark"><img src="assets/kaneki-creator-cutout.png" alt="KeniX creator avatar"/></span><div><small>INDEPENDENT DEVELOPER</small><h3>KeniX</h3><p>Feedback, bug reports, partnerships, or ideas.</p><a href="mailto:kenixio777@gmail.com">kenixio777@gmail.com <b>↗</b></a><a class="creator-github" href="https://github.com/kenixxi">GitHub · @kenixxi</a></div></div></section><section class="final-cta reveal"><div class="cta-lines"></div><p>LOCK v1.2.3 · WINDOWS</p><h2>Your best champions<br/>are already enough.</h2><a href="https://github.com/kenixxi/Lock/releases/latest/download/Lock.zip" download="Lock.zip">Download Lock.zip <span>↓</span></a><small>Champion-pool focus app for League of Legends</small></section><footer><a class="brand" href="#home"><img src="assets/lock-logo.svg" alt="Lock — in your best"/></a><p>Built for players who want fewer excuses and better picks.</p><div><a href="#features">Features</a><a href="#tutorial">Tutorial</a><a href="https://github.com/kenixxi/Lock">GitHub</a></div><small>Lock is independent and is not endorsed by Riot Games. League of Legends and Riot Games are trademarks of Riot Games, Inc.</small></footer></main><script src="script.js"></script></body>
+<body>
+
+<nav>
+  <div class="wrap nav-in">
+    <a class="brand" href="#top">
+      <svg class="mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="3.5" y="10" width="17" height="11.5" stroke="#C8A45C" stroke-width="1.6"/>
+        <path d="M7.5 10V7a4.5 4.5 0 0 1 9 0v3" stroke="#C8A45C" stroke-width="1.6"/>
+        <circle cx="12" cy="15.4" r="1.7" fill="#C8A45C"/>
+      </svg>
+      LOCK
+    </a>
+    <span class="slogan">in your best</span>
+    <div class="nav-links">
+      <a href="#vault">The Vault</a>
+      <a href="#does">What it does</a>
+      <a href="#setup">Setup</a>
+      <a href="/">kenix.app</a>
+    </div>
+    <a class="btn btn--solid" href="https://github.com/kenixxi/Lock/releases/latest/download/Lock.zip">Download 1.3.0</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="tag">Windows desktop app · League of Legends · Free</span>
+    <h1 class="hero-title">
+      <span class="ln ln-1">Lock in</span>
+      <span class="ln ln-2">your best.</span>
+    </h1>
+    <p class="lede">Lock reads champ select as it happens and tells you the moment you drift outside the two to five champions you actually win on. No overlay clutter, no Riot login.</p>
+    <div class="hero-cta">
+      <a class="btn btn--solid" href="https://github.com/kenixxi/Lock/releases/latest/download/Lock.zip">Download Lock.zip</a>
+      <a class="btn btn--ghost" href="#vault">See the Vault</a>
+      <span class="hero-note">v1.3.0 · ~24 MB · Windows 10/11</span>
+    </div>
+
+    <!-- SIGNATURE: live vault state machine -->
+    <div class="vault" id="vault">
+      <div class="vault-head">
+        <span class="tag tag--mist">Vault — live states</span>
+        <div class="phases" role="group" aria-label="Vault phase">
+          <button class="phase-btn" data-p="dormant" aria-pressed="false">Dormant</button>
+          <button class="phase-btn" data-p="armed" aria-pressed="false">Armed</button>
+          <button class="phase-btn" data-p="scanning" aria-pressed="true">Scanning</button>
+          <button class="phase-btn" data-p="alarm" aria-pressed="false">Off-pool</button>
+          <button class="phase-btn" data-p="locked" aria-pressed="false">Locked in</button>
+        </div>
+      </div>
+
+      <div class="rack" data-phase="scanning" id="rack">
+        <div class="readout">
+          <span class="led"></span>
+          <span>Status <b id="r-status">Scanning</b></span>
+          <span>Client <b id="r-client">Champ select</b></span>
+          <span>Hover <b id="r-hover">Fizz</b></span>
+          <span>Pool <b id="r-pool">5 sealed</b></span>
+        </div>
+
+        <div class="splash" id="splash"><img id="splash-img" src="" alt=""></div>
+
+        <div class="chambers" id="chambers">
+          <div class="ch" data-champ="Fizz" data-key="Fizz">
+            <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Fizz_0.jpg" alt="Fizz">
+            <span class="ch-state">Hover</span><span class="ch-name">Fizz</span>
+          </div>
+          <div class="ch" data-champ="Talon" data-key="Talon">
+            <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Talon_0.jpg" alt="Talon">
+            <span class="ch-state">Hover</span><span class="ch-name">Talon</span>
+          </div>
+          <div class="ch is-sealed" data-champ="Viktor" data-key="Viktor">
+            <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Viktor_0.jpg" alt="Viktor">
+            <span class="ch-state">Banned</span><span class="ch-name">Viktor</span>
+          </div>
+          <div class="ch" data-champ="Katarina" data-key="Katarina">
+            <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Katarina_0.jpg" alt="Katarina">
+            <span class="ch-state">Hover</span><span class="ch-name">Katarina</span>
+          </div>
+          <div class="ch" data-champ="Twisted Fate" data-key="TwistedFate">
+            <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/loading/TwistedFate_0.jpg" alt="Twisted Fate">
+            <span class="ch-state">Hover</span><span class="ch-name">Twisted Fate</span>
+          </div>
+        </div>
+
+        <div class="foreign">
+          <img class="foreign-art" src="https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Camille_0.jpg" alt="Camille">
+          <p><b>Camille is outside your pool.</b><span>Lock raises a foreign-signature warning before you commit the pick.</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="problem">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="tag">The problem</span>
+      <h2>Ranked games get lost <em>before the loading screen.</em></h2>
+      <p class="lede">Champ select is thirty seconds of pressure, and the pick you regret is almost never the one you planned.</p>
+    </div>
+    <div class="costs">
+      <div class="cost"><span class="tag">Panic pick</span><p>Someone hovers your lane, the timer drops, and you take a champion you haven't played in months.</p></div>
+      <div class="cost"><span class="tag">Too many options</span><p>A twenty-champion pool means twenty first-times. Mastery comes from repetition, not variety.</p></div>
+      <div class="cost"><span class="tag">Tilt picking</span><p>Two losses deep, you swap to something "fun" and turn a bad session into a worse one.</p></div>
+      <div class="cost"><span class="tag">No memory</span><p>You forget which champions actually carried you last month, so you pick on feel instead of results.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="does">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="tag">What Lock does</span>
+      <h2>One system for your <em>ranked identity.</em></h2>
+      <p class="lede">Not a scouting overlay and not another stats site. Lock only cares about your own pool, your own form, and the decision in front of you right now.</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <span class="tag">Live guard</span>
+        <h3>Every hover checked against your pool</h3>
+        <p>Lock polls the League Client roughly twice a second during champ select and compares what you're hovering to the champions you committed to.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Warning</span>
+        <h3>A foreign-signature alert, not a lecture</h3>
+        <p>Drift outside the pool and a clean warning appears while you still have time to change your mind. It works even when Lock isn't the focused window.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Form</span>
+        <h3>Comfort zone from real results</h3>
+        <p>Recent games on your pool champions are ranked by actual win rate and KDA, so "comfort" means what the record says, not what you remember.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Profile</span>
+        <h3>Rank, LP and pool in one place</h3>
+        <p>Solo/duo rank with the real tier emblem, current LP, session record and your sealed pool, without opening a browser.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Signature</span>
+        <h3>Lock DNA reacts to your discipline</h3>
+        <p>A visual fingerprint that stays calm when your pool is tight and bends when it scatters. It's a mood ring for your champ select habits.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Stream</span>
+        <h3>Compact OBS overlay</h3>
+        <p>A small status surface with session wins and losses that drops straight into a browser source, so your pool discipline becomes part of the broadcast.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="problem">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="tag">The Vault engine · new in 1.3.0</span>
+      <h2>The pool became a <em>machine with states.</em></h2>
+      <p class="lede">Your champions sit in chambers that react to what the League Client is doing. It's rendered natively in Qt at up to 60 FPS — no embedded browser, no second runtime.</p>
+    </div>
+
+    <div class="timeline">
+      <div class="tl">
+        <span class="tl-n">STATE 01</span>
+        <h3>Dormant</h3>
+        <p>League Client is closed. The chambers go quiet and Lock sits in the tray costing you nothing.</p>
+      </div>
+      <div class="tl">
+        <span class="tl-n">STATE 02</span>
+        <h3>Armed</h3>
+        <p>You queue up. Matchmaking and the ready check bring the rack online and the brass edges light.</p>
+      </div>
+      <div class="tl">
+        <span class="tl-n">STATE 03</span>
+        <h3>Scanning</h3>
+        <p>Champ select begins. The champion you're hovering develops its chamber to full glass and shows its skin and availability. Banned champions seal shut; ones already taken by a teammate get marked.</p>
+      </div>
+      <div class="tl">
+        <span class="tl-n">STATE 04</span>
+        <h3>Foreign signature</h3>
+        <p>Hover something outside the pool and the whole rack throws a red alarm sweep. This is the one moment the app exists for.</p>
+      </div>
+      <div class="tl">
+        <span class="tl-n">STATE 05</span>
+        <h3>Locked in</h3>
+        <p>Confirm an in-pool champion and its chamber expands into a full-width splash with a signature effect built for that champion — water and caustics for Fizz, blade trails for Talon, Hexcore fog for Viktor, orbiting cards for Twisted Fate.</p>
+      </div>
+      <div class="tl">
+        <span class="tl-n">STATE 06</span>
+        <h3>Deployed, then archived</h3>
+        <p>The game starts and the Vault switches to deployment. When it ends, the result lands in the archive and your form updates.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="setup">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="tag">Setup</span>
+      <h2>From download to <em>your first warning.</em></h2>
+      <p class="lede">Four steps, no Riot password, nothing to configure in the client.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <h3>Open League</h3>
+        <p>Start the League Client on your PC as you normally would, then run Lock.</p>
+      </div>
+      <div class="step">
+        <h3>Connect the lockfile</h3>
+        <p>Lock finds it on its own in most installs. If yours lives somewhere unusual, point at it in Settings.</p>
+      </div>
+      <div class="step">
+        <h3>Seal two to five champions</h3>
+        <p>Pick the champions you actually want to be playing. Fewer is the point — this is a commitment, not a wishlist.</p>
+      </div>
+      <div class="step">
+        <h3>Queue with Home or Profile open</h3>
+        <p>Leave Lock on either page before champ select so live status and the off-pool warning fire the way they should.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <h3>What a lockfile actually is</h3>
+      <p>A temporary key the League Client writes on your own machine while it's running. It gives Lock the local port and authorization needed to read client state and champ select. It never leaves your computer, and Lock never asks for your Riot password.</p>
+      <span class="path">C:\Riot Games\League of Legends\lockfile</span>
+    </div>
+  </div>
+</section>
+
+<section class="creator">
+  <div class="wrap creator-in">
+    <div>
+      <span class="tag">Creator &amp; owner</span>
+      <h2 style="margin-top:14px">Built by KeniX.</h2>
+      <p>Lock, its visual system and the champion-pool concept behind it are independently designed and developed. Bug reports, ideas and feedback all welcome.</p>
+      <div class="creator-links">
+        <a class="btn btn--ghost" href="mailto:kenixio777@gmail.com">kenixio777@gmail.com</a>
+        <a class="btn btn--ghost" href="https://github.com/kenixxi">GitHub @kenixxi</a>
+        <a class="btn btn--ghost" href="/">More apps</a>
+      </div>
+    </div>
+    <img class="avatar" src="assets/kaneki-creator-cutout.png" alt="KeniX" onerror="this.remove()">
+  </div>
+</section>
+
+<section class="close">
+  <div class="wrap">
+    <span class="tag">Lock 1.3.0 · Windows</span>
+    <h2>Your best champions are <em>already enough.</em></h2>
+    <a class="btn btn--solid" href="https://github.com/kenixxi/Lock/releases/latest/download/Lock.zip">Download Lock.zip ↓</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-in">
+      <a class="brand" href="#top">
+        <svg class="mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3.5" y="10" width="17" height="11.5" stroke="#C8A45C" stroke-width="1.6"/>
+          <path d="M7.5 10V7a4.5 4.5 0 0 1 9 0v3" stroke="#C8A45C" stroke-width="1.6"/>
+          <circle cx="12" cy="15.4" r="1.7" fill="#C8A45C"/>
+        </svg>
+        LOCK
+      </a>
+      <div class="foot-links">
+        <a href="#does">What it does</a>
+        <a href="#setup">Setup</a>
+        <a href="https://github.com/kenixxi/Lock">Source</a>
+        <a href="/">kenix.app</a>
+      </div>
+    </div>
+    <p class="disclaimer">Lock is an independent project and is not endorsed by Riot Games. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var rack=document.getElementById('rack');
+  var btns=[].slice.call(document.querySelectorAll('.phase-btn'));
+  var chambers=[].slice.call(document.querySelectorAll('.ch'));
+  var pool=chambers.filter(function(c){return !c.classList.contains('is-sealed')});
+
+  var copy={
+    dormant:{status:'Dormant',client:'Closed',hover:'—',pool:'5 sealed'},
+    armed:{status:'Armed',client:'Ready check',hover:'—',pool:'5 sealed'},
+    scanning:{status:'Scanning',client:'Champ select',hover:'',pool:'1 banned'},
+    alarm:{status:'Foreign signature',client:'Champ select',hover:'Camille',pool:'1 banned'},
+    locked:{status:'Locked in',client:'Champ select',hover:'',pool:'5 sealed'}
+  };
+  var el={status:document.getElementById('r-status'),client:document.getElementById('r-client'),
+          hover:document.getElementById('r-hover'),pool:document.getElementById('r-pool')};
+
+  var idx=0, timer=null, manual=false;
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var splashImg=document.getElementById('splash-img');
+  var DD='https://ddragon.leagueoflegends.com/cdn/img/champion/splash/';
+
+  function markActive(i){
+    chambers.forEach(function(c){c.classList.remove('is-active')});
+    if(pool[i]){
+      pool[i].classList.add('is-active');
+      splashImg.src=DD+pool[i].dataset.key+'_0.jpg';
+      splashImg.alt=pool[i].dataset.champ;
+    }
+    return pool[i]?pool[i].dataset.champ:'—';
+  }
+
+  function set(p,fromUser){
+    rack.dataset.phase=p;
+    btns.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.p===p))});
+    var c=copy[p];
+    var champ='—';
+    if(p==='scanning'||p==='locked'){ champ=markActive(idx); }
+    else { chambers.forEach(function(x){x.classList.remove('is-active')}); }
+    el.status.textContent=c.status;
+    el.client.textContent=c.client;
+    el.hover.textContent=c.hover||champ;
+    el.pool.textContent=c.pool;
+    if(fromUser){manual=true;clearInterval(timer);}
+  }
+
+  btns.forEach(function(b){b.addEventListener('click',function(){set(b.dataset.p,true)})});
+
+  if(!reduce){
+    timer=setInterval(function(){
+      if(manual)return;
+      idx=(idx+1)%pool.length;
+      markActive(idx);
+      el.hover.textContent=pool[idx].dataset.champ;
+    },1900);
+  }
+  set('scanning',false);
+})();
+</script>
+</body>
 </html>
