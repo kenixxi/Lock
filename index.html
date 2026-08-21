@@ -197,7 +197,324 @@ nav{
 }
 
 /* phase states */
-.rack[data-phase="dormant"] .ch{opacity:.42;filter:saturate(.25)}
+/* ---- FX layer -------------------------------------------------------- */
+.fx{position:absolute;inset:0;pointer-events:none;z-index:3;overflow:hidden}
+
+/* scanning: a brass band raking down, bright leading edge + trailing glow */
+.fx-beam{
+  position:absolute;left:-2%;right:-2%;top:0;height:88px;opacity:0;
+  background:linear-gradient(180deg,
+    transparent 0%,
+    rgba(200,164,92,.10) 45%,
+    rgba(200,164,92,.30) 82%,
+    rgba(240,214,150,.95) 97%,
+    transparent 100%);
+}
+.rack[data-phase="scanning"] .fx-beam{animation:rake 2.2s cubic-bezier(.5,0,.5,1) infinite}
+@keyframes rake{
+  0%{top:-90px;opacity:0}
+  10%{opacity:1}
+  85%{opacity:1}
+  100%{top:100%;opacity:0}
+}
+
+/* lock-in: brass flash + shockwave ring */
+.fx-flash{
+  position:absolute;inset:0;opacity:0;
+  background:radial-gradient(62% 52% at 50% 52%,rgba(240,214,150,.6),transparent 72%);
+}
+.rack[data-phase="locked"] .fx-flash{animation:flashout 1s ease-out both}
+@keyframes flashout{0%{opacity:0}7%{opacity:1}100%{opacity:0}}
+
+.fx-ring{
+  position:absolute;left:50%;top:52%;width:46px;height:46px;margin:-23px 0 0 -23px;
+  border:2px solid rgba(240,214,150,.85);border-radius:50%;opacity:0;
+}
+.rack[data-phase="locked"] .fx-ring{animation:shock 1.15s cubic-bezier(.1,.65,.25,1) both}
+@keyframes shock{0%{opacity:.95;transform:scale(.15)}100%{opacity:0;transform:scale(11)}}
+
+/* ---- DORMANT: clearly asleep, still breathing ------------------------ */
+.rack[data-phase="dormant"] .ch{
+  filter:saturate(.06) brightness(.5) contrast(.9);
+  animation:breathe 3.2s ease-in-out infinite;
+}
+.rack[data-phase="dormant"] .ch:nth-child(2){animation-delay:.26s}
+.rack[data-phase="dormant"] .ch:nth-child(3){animation-delay:.52s}
+.rack[data-phase="dormant"] .ch:nth-child(4){animation-delay:.78s}
+.rack[data-phase="dormant"] .ch:nth-child(5){animation-delay:1.04s}
+@keyframes breathe{
+  0%,100%{opacity:.16;transform:translateY(3px) scale(.975)}
+  50%{opacity:.66;transform:translateY(0) scale(1)}
+}
+.rack[data-phase="dormant"] .fx::after{
+  content:"";position:absolute;top:0;bottom:0;width:45%;
+  background:linear-gradient(100deg,transparent,rgba(143,163,174,.16),transparent);
+  animation:driftby 5.5s ease-in-out infinite;
+}
+@keyframes driftby{
+  0%{transform:translateX(-140%)}
+  100%{transform:translateX(340%)}
+}
+
+/* ---- ARMED: the rack powering up, chamber by chamber ------------------ */
+.rack[data-phase="armed"] .ch{animation:powerup .75s cubic-bezier(.2,.75,.3,1) both}
+.rack[data-phase="armed"] .ch:nth-child(2){animation-delay:.08s}
+.rack[data-phase="armed"] .ch:nth-child(3){animation-delay:.16s}
+.rack[data-phase="armed"] .ch:nth-child(4){animation-delay:.24s}
+.rack[data-phase="armed"] .ch:nth-child(5){animation-delay:.32s}
+@keyframes powerup{
+  0%{opacity:.2;transform:translateY(14px) scale(.94);border-color:var(--edge);filter:brightness(.4)}
+  55%{opacity:1;transform:translateY(-6px) scale(1.02);border-color:var(--brass);filter:brightness(1.35);
+      box-shadow:0 0 0 1px var(--brass),0 0 30px rgba(200,164,92,.55)}
+  100%{opacity:1;transform:none;border-color:var(--brass-dim);filter:none;box-shadow:none}
+}
+.rack[data-phase="armed"] .readout{animation:charge 1.1s ease-out both}
+@keyframes charge{
+  0%{border-bottom-color:var(--edge)}
+  50%{border-bottom-color:var(--brass);box-shadow:0 2px 16px rgba(200,164,92,.35)}
+  100%{border-bottom-color:var(--edge);box-shadow:none}
+}
+
+/* ---- SCANNING: the hovered chamber holds focus ------------------------ */
+.rack[data-phase="scanning"] .ch.is-active{animation:focuspulse 1.5s ease-in-out infinite}
+@keyframes focuspulse{
+  0%,100%{box-shadow:0 0 0 1px var(--brass),0 14px 34px rgba(0,0,0,.5);
+          transform:translateY(-7px) scale(1)}
+  50%{box-shadow:0 0 0 2px var(--brass),0 0 40px rgba(200,164,92,.75),0 14px 34px rgba(0,0,0,.5);
+      transform:translateY(-11px) scale(1.035)}
+}
+
+/* ---- LOCKED IN: the payoff ------------------------------------------- */
+.rack[data-phase="locked"] .splash img{animation:kenburns 3.4s cubic-bezier(.15,.7,.25,1) both}
+@keyframes kenburns{
+  0%{transform:scale(1.34);filter:brightness(2.2) saturate(1.5)}
+  35%{filter:brightness(1.15) saturate(1.15)}
+  100%{transform:scale(1.02);filter:none}
+}
+.rack[data-phase="locked"] .ch.is-active{animation:lockin .78s cubic-bezier(.16,.9,.25,1) both}
+@keyframes lockin{
+  0%{transform:translateY(0) scale(1);filter:brightness(1)}
+  30%{transform:translateY(-30px) scale(1.2);filter:brightness(2.4)}
+  100%{transform:translateY(-12px) scale(1.08);filter:brightness(1.05)}
+}
+.rack[data-phase="locked"] .ch:not(.is-active){
+  animation:collapse .6s cubic-bezier(.4,0,.6,1) both;
+}
+@keyframes collapse{
+  0%{opacity:.72;transform:scale(1)}
+  100%{opacity:.14;transform:scale(.86) translateY(10px)}
+}
+
+/* signature effects — one per champion, same idea as the app's FX engine */
+.sig{position:absolute;inset:0;opacity:0;transition:opacity .5s}
+.rack[data-phase="locked"] .sig{opacity:1}
+.sig i{position:absolute;opacity:0}
+
+/* Fizz — caustics rolling over the splash */
+.sig[data-sig="Fizz"]{
+  background:
+    radial-gradient(55% 38% at 26% 74%,rgba(130,235,255,.55),transparent 68%),
+    radial-gradient(45% 32% at 74% 34%,rgba(90,180,255,.45),transparent 68%),
+    radial-gradient(30% 22% at 52% 58%,rgba(180,250,255,.35),transparent 70%);
+  mix-blend-mode:screen;
+  animation:caustic 3.6s ease-in-out infinite alternate;
+}
+@keyframes caustic{
+  from{transform:translate3d(-4%,2%,0) scale(1.06);opacity:.75}
+  to{transform:translate3d(5%,-3%,0) scale(1.2);opacity:1}
+}
+
+/* Talon — blade trails raking across */
+.sig[data-sig="Talon"] i{
+  display:block;opacity:1;top:-30%;bottom:-30%;width:3px;
+  background:linear-gradient(transparent,rgba(226,240,255,.95),transparent);
+  box-shadow:0 0 22px rgba(190,215,255,.8);
+  transform:rotate(17deg);
+  animation:slash 1.9s ease-in-out infinite;
+}
+.sig[data-sig="Talon"] i:nth-child(1){left:20%}
+.sig[data-sig="Talon"] i:nth-child(2){left:48%;animation-delay:.16s}
+.sig[data-sig="Talon"] i:nth-child(3){left:76%;animation-delay:.32s}
+@keyframes slash{
+  0%,68%,100%{opacity:0;transform:rotate(17deg) translateX(-70px)}
+  10%{opacity:1}
+  38%{opacity:0;transform:rotate(17deg) translateX(90px)}
+}
+
+/* Viktor — hexcore lattice firing up */
+.sig[data-sig="Viktor"]{
+  background-image:
+    repeating-linear-gradient(60deg,rgba(255,190,70,.4) 0 2px,transparent 2px 26px),
+    repeating-linear-gradient(-60deg,rgba(255,190,70,.4) 0 2px,transparent 2px 26px);
+  mix-blend-mode:screen;
+  animation:hexpulse 2.2s ease-in-out infinite;
+}
+@keyframes hexpulse{
+  0%,100%{opacity:.25;filter:blur(1px)}
+  50%{opacity:1;filter:blur(0)}
+}
+
+/* Katarina — a blade sweep circling the pick */
+.sig[data-sig="Katarina"]{
+  background:conic-gradient(from 0deg at 50% 55%,
+    transparent 0 72%,rgba(255,90,70,.7) 87%,rgba(255,190,170,.9) 92%,transparent 96%);
+  mix-blend-mode:screen;
+  animation:sweep 2.6s linear infinite;
+}
+@keyframes sweep{to{transform:rotate(360deg)}}
+
+/* Twisted Fate — cards orbiting the pick */
+.sig[data-sig="TwistedFate"] i{
+  display:block;opacity:1;width:34px;height:50px;left:50%;top:50%;
+  margin:-25px 0 0 -17px;border:2px solid rgba(255,220,130,.95);
+  background:linear-gradient(150deg,rgba(255,220,130,.4),rgba(255,150,60,.18));
+  box-shadow:0 0 24px rgba(255,200,110,.7);border-radius:4px;
+  animation:orbit 3.4s linear infinite;
+}
+.sig[data-sig="TwistedFate"] i:nth-child(2){animation-delay:-1.13s}
+.sig[data-sig="TwistedFate"] i:nth-child(3){animation-delay:-2.26s}
+@keyframes orbit{
+  from{transform:rotate(0) translateX(150px) rotate(0)}
+  to{transform:rotate(360deg) translateX(150px) rotate(-720deg)}
+}
+
+
+/* ---- SCANNING: targeting reticle that glides between chambers -------- */
+.reticle{
+  position:absolute;opacity:0;pointer-events:none;
+  transition:left .42s cubic-bezier(.2,.8,.25,1),top .42s cubic-bezier(.2,.8,.25,1),
+             width .42s cubic-bezier(.2,.8,.25,1),height .42s cubic-bezier(.2,.8,.25,1),
+             opacity .3s;
+}
+.rack[data-phase="scanning"] .reticle{opacity:1}
+.reticle i{
+  position:absolute;width:18px;height:18px;opacity:1;
+  border:2px solid var(--brass);
+  filter:drop-shadow(0 0 6px rgba(200,164,92,.9));
+  animation:reticlebreathe 1.5s ease-in-out infinite;
+}
+.reticle i:nth-child(1){left:-6px;top:-6px;border-right:0;border-bottom:0}
+.reticle i:nth-child(2){right:-6px;top:-6px;border-left:0;border-bottom:0}
+.reticle i:nth-child(3){left:-6px;bottom:-6px;border-right:0;border-top:0}
+.reticle i:nth-child(4){right:-6px;bottom:-6px;border-left:0;border-top:0}
+@keyframes reticlebreathe{0%,100%{transform:translate(0,0)}50%{transform:translate(-3px,-3px)}}
+.reticle i:nth-child(2){animation-name:reticlebreathe2}
+.reticle i:nth-child(3){animation-name:reticlebreathe3}
+.reticle i:nth-child(4){animation-name:reticlebreathe4}
+@keyframes reticlebreathe2{0%,100%{transform:translate(0,0)}50%{transform:translate(3px,-3px)}}
+@keyframes reticlebreathe3{0%,100%{transform:translate(0,0)}50%{transform:translate(-3px,3px)}}
+@keyframes reticlebreathe4{0%,100%{transform:translate(0,0)}50%{transform:translate(3px,3px)}}
+
+/* every chamber gets its own scan wipe, staggered across the rack */
+.ch::after{
+  content:"";position:absolute;left:0;right:0;height:36%;top:-40%;opacity:0;
+  background:linear-gradient(180deg,transparent,rgba(200,164,92,.28),rgba(240,214,150,.7));
+  pointer-events:none;
+}
+.rack[data-phase="scanning"] .ch::after{opacity:1;animation:chwipe 2.2s linear infinite}
+.rack[data-phase="scanning"] .ch:nth-child(2)::after{animation-delay:.11s}
+.rack[data-phase="scanning"] .ch:nth-child(3)::after{animation-delay:.22s}
+.rack[data-phase="scanning"] .ch:nth-child(4)::after{animation-delay:.33s}
+.rack[data-phase="scanning"] .ch:nth-child(5)::after{animation-delay:.44s}
+@keyframes chwipe{0%{top:-40%;opacity:0}12%{opacity:1}88%{opacity:1}100%{top:104%;opacity:0}}
+
+/* ---- LOCKED IN: animated backdrop behind the splash ------------------ */
+.splash-bg{position:absolute;inset:0;opacity:0;z-index:0;overflow:hidden;transition:opacity .6s}
+.rack[data-phase="locked"] .splash-bg{opacity:1}
+.splash-bg::before,.splash-bg::after{content:"";position:absolute;inset:-25% 0}
+
+/* the splash itself fades at the edges so the backdrop reads behind it */
+.rack[data-phase="locked"] .splash img{
+  -webkit-mask-image:radial-gradient(78% 92% at 50% 42%,#000 42%,rgba(0,0,0,.55) 68%,transparent 88%);
+  mask-image:radial-gradient(78% 92% at 50% 42%,#000 42%,rgba(0,0,0,.55) 68%,transparent 88%);
+}
+
+@keyframes floatup{from{transform:translateY(0)}to{transform:translateY(-84px)}}
+@keyframes swirl{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes glowbeat{0%,100%{opacity:.35}50%{opacity:.9}}
+
+/* Fizz — deep water: bubbles rising through caustic light */
+.splash-bg[data-sig="Fizz"]{
+  background:radial-gradient(70% 60% at 50% 55%,rgba(18,86,120,.95),rgba(6,20,32,.98));
+}
+.splash-bg[data-sig="Fizz"]::before{
+  background-image:radial-gradient(circle,rgba(170,242,255,.9) 1.6px,transparent 2.2px),
+                   radial-gradient(circle,rgba(120,210,240,.6) 1px,transparent 1.6px);
+  background-size:84px 84px,52px 52px;
+  animation:floatup 6s linear infinite;
+}
+.splash-bg[data-sig="Fizz"]::after{
+  background:radial-gradient(45% 35% at 30% 65%,rgba(120,235,255,.45),transparent 70%),
+             radial-gradient(40% 30% at 72% 38%,rgba(70,170,255,.4),transparent 70%);
+  animation:glowbeat 3.2s ease-in-out infinite;
+}
+
+/* Talon — night ambush: steel haze and drifting sparks */
+.splash-bg[data-sig="Talon"]{
+  background:radial-gradient(70% 60% at 50% 50%,rgba(38,48,72,.95),rgba(6,9,16,.99));
+}
+.splash-bg[data-sig="Talon"]::before{
+  background-image:radial-gradient(circle,rgba(206,226,255,.75) 1.2px,transparent 1.8px);
+  background-size:96px 96px;
+  animation:floatup 7.5s linear infinite;
+}
+.splash-bg[data-sig="Talon"]::after{
+  background:linear-gradient(115deg,transparent 30%,rgba(150,180,230,.3) 50%,transparent 70%);
+  animation:glowbeat 2.4s ease-in-out infinite;
+}
+
+/* Viktor — the Hexcore: rings turning inside a furnace glow */
+.splash-bg[data-sig="Viktor"]{
+  background:radial-gradient(60% 55% at 50% 52%,rgba(120,72,12,.95),rgba(10,8,6,.99));
+}
+.splash-bg[data-sig="Viktor"]::before{
+  inset:-40%;
+  background:conic-gradient(from 0deg at 50% 50%,
+    transparent 0 8%,rgba(255,190,70,.35) 12%,transparent 20%,
+    transparent 33%,rgba(255,190,70,.35) 37%,transparent 45%,
+    transparent 58%,rgba(255,190,70,.35) 62%,transparent 70%,
+    transparent 83%,rgba(255,190,70,.35) 87%,transparent 95%);
+  animation:swirl 14s linear infinite;
+}
+.splash-bg[data-sig="Viktor"]::after{
+  background:radial-gradient(38% 38% at 50% 50%,rgba(255,205,110,.6),transparent 70%);
+  animation:glowbeat 2s ease-in-out infinite;
+}
+
+/* Katarina — embers climbing out of a crimson dark */
+.splash-bg[data-sig="Katarina"]{
+  background:radial-gradient(65% 58% at 50% 58%,rgba(104,18,22,.95),rgba(14,5,7,.99));
+}
+.splash-bg[data-sig="Katarina"]::before{
+  background-image:radial-gradient(circle,rgba(255,150,90,.95) 1.8px,transparent 2.4px),
+                   radial-gradient(circle,rgba(255,90,60,.65) 1.1px,transparent 1.7px);
+  background-size:72px 72px,44px 44px;
+  animation:floatup 4.4s linear infinite;
+}
+.splash-bg[data-sig="Katarina"]::after{
+  background:radial-gradient(40% 34% at 50% 62%,rgba(255,110,80,.5),transparent 72%);
+  animation:glowbeat 1.8s ease-in-out infinite;
+}
+
+/* Twisted Fate — a table of gold light and turning cards */
+.splash-bg[data-sig="TwistedFate"]{
+  background:radial-gradient(66% 58% at 50% 55%,rgba(96,66,16,.95),rgba(14,10,4,.99));
+}
+.splash-bg[data-sig="TwistedFate"]::before{
+  inset:-40%;
+  background:conic-gradient(from 0deg at 50% 50%,
+    transparent 0 22%,rgba(255,214,130,.3) 26%,transparent 32%,
+    transparent 72%,rgba(255,214,130,.3) 76%,transparent 82%);
+  animation:swirl 9s linear infinite;
+}
+.splash-bg[data-sig="TwistedFate"]::after{
+  background-image:radial-gradient(circle,rgba(255,225,150,.9) 1.5px,transparent 2.1px);
+  background-size:66px 66px;
+  animation:floatup 5.2s linear infinite;
+}
+
+/* ---- base per-phase looks (unchanged behaviour) ---------------------- */
+.rack[data-phase="dormant"] .ch{opacity:.42}
 .rack[data-phase="armed"] .ch,
 .rack[data-phase="scanning"] .ch,
 .rack[data-phase="locked"] .ch,
@@ -218,7 +535,7 @@ nav{
 .rack[data-phase="locked"] .ch.is-active .ch-name{color:var(--brass)}
 .rack[data-phase="scanning"] .ch.is-active .ch-state,
 .rack[data-phase="locked"] .ch.is-active .ch-state{opacity:1;border-color:var(--brass);color:var(--brass)}
-.rack[data-phase="locked"] .ch:not(.is-active){opacity:.3}
+
 
 /* sealed */
 .rack[data-phase="scanning"] .ch.is-sealed,
@@ -384,7 +701,15 @@ footer{border-top:1px solid var(--edge);padding:44px 0 56px;background:var(--ste
           <span>Pool <b id="r-pool">5 sealed</b></span>
         </div>
 
+        <div class="splash-bg" id="splashbg"></div>
         <div class="splash" id="splash"><img id="splash-img" src="" alt=""></div>
+        <div class="fx" aria-hidden="true">
+          <span class="fx-beam"></span>
+          <span class="fx-flash"></span>
+          <span class="fx-ring"></span>
+          <span class="reticle" id="reticle"><i></i><i></i><i></i><i></i></span>
+          <span class="sig" id="sig"><i></i><i></i><i></i></span>
+        </div>
 
         <div class="chambers" id="chambers">
           <div class="ch" data-champ="Fizz" data-key="Fizz">
@@ -619,7 +944,32 @@ footer{border-top:1px solid var(--edge);padding:44px 0 56px;background:var(--ste
   var idx=0, timer=null, manual=false;
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var splashImg=document.getElementById('splash-img');
+  var splashBg=document.getElementById('splashbg');
+  var sig=document.getElementById('sig');
+  var reticle=document.getElementById('reticle');
   var DD='https://ddragon.leagueoflegends.com/cdn/img/champion/splash/';
+
+  var reticleReady=false;
+  function placeReticle(el){
+    if(!el||!reticle)return;
+    var r=rack.getBoundingClientRect(), c=el.getBoundingClientRect();
+    if(!reticleReady){reticle.style.transition='none';}
+    reticle.style.left=(c.left-r.left)+'px';
+    reticle.style.top=(c.top-r.top)+'px';
+    reticle.style.width=c.width+'px';
+    reticle.style.height=c.height+'px';
+    if(!reticleReady){
+      // let the first position paint, then allow it to glide
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){reticle.style.transition='';reticleReady=true;});
+      });
+    }
+  }
+
+  function reposition(){
+    var active=rack.querySelector('.ch.is-active');
+    if(active)placeReticle(active);
+  }
 
   function markActive(i){
     chambers.forEach(function(c){c.classList.remove('is-active')});
@@ -627,9 +977,15 @@ footer{border-top:1px solid var(--edge);padding:44px 0 56px;background:var(--ste
       pool[i].classList.add('is-active');
       splashImg.src=DD+pool[i].dataset.key+'_0.jpg';
       splashImg.alt=pool[i].dataset.champ;
+      sig.setAttribute('data-sig',pool[i].dataset.key);
+      splashBg.setAttribute('data-sig',pool[i].dataset.key);
+      placeReticle(pool[i]);
     }
     return pool[i]?pool[i].dataset.champ:'—';
   }
+
+  window.addEventListener('resize',reposition);
+  window.addEventListener('load',reposition);
 
   function set(p,fromUser){
     rack.dataset.phase=p;
