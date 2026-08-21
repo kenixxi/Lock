@@ -166,7 +166,7 @@ nav{
 
 .chambers{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(7px,1.1vw,13px)}
 .ch{
-  position:relative;aspect-ratio:3/4;
+  position:relative;aspect-ratio:3/4;cursor:pointer;
   border:1px solid var(--edge);
   background:var(--panel);
   overflow:hidden;
@@ -407,8 +407,14 @@ nav{
 
 /* every chamber gets its own scan wipe, staggered across the rack */
 .ch::after{
-  content:"";position:absolute;left:0;right:0;height:36%;top:-40%;opacity:0;
-  background:linear-gradient(180deg,transparent,rgba(200,164,92,.28),rgba(240,214,150,.7));
+  content:"";position:absolute;left:0;right:0;height:52%;top:-55%;opacity:0;
+  background:linear-gradient(180deg,
+    transparent 0%,
+    rgba(200,164,92,.14) 38%,
+    rgba(245,222,164,.42) 62%,
+    rgba(200,164,92,.12) 80%,
+    transparent 100%);
+  mix-blend-mode:screen;
   pointer-events:none;
 }
 .rack[data-phase="scanning"] .ch::after{opacity:1;animation:chwipe 2.2s linear infinite}
@@ -513,6 +519,25 @@ nav{
   animation:floatup 5.2s linear infinite;
 }
 
+
+/* visitors can pick the champion themselves */
+.ch:hover{border-color:var(--brass)}
+.ch:hover img{opacity:.9;filter:grayscale(.1)}
+.ch:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+.ch.is-sealed{cursor:not-allowed}
+.ch.is-sealed:hover{border-color:var(--alarm)}
+.ch.shake{animation:nope .32s ease-in-out}
+@keyframes nope{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-5px)}
+  75%{transform:translateX(5px)}
+}
+.pickhint{
+  display:block;margin-top:12px;
+  font-family:var(--data);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--mist);opacity:.75;
+}
+
 /* ---- base per-phase looks (unchanged behaviour) ---------------------- */
 .rack[data-phase="dormant"] .ch{opacity:.42}
 .rack[data-phase="armed"] .ch,
@@ -564,8 +589,16 @@ nav{
 .foreign span{color:var(--mist);display:block;font-size:12px}
 
 @media(max-width:620px){
-  .chambers{grid-template-columns:repeat(3,1fr)}
-  .ch:nth-child(n+4){display:none}
+  /* keep all five: the JS cycle runs over the whole pool, so hiding any
+     chamber leaves the splash showing a champion with no chamber to match */
+  .chambers{gap:5px}
+  .ch-name{padding:5px 5px;font-size:8px;letter-spacing:.06em}
+  .ch-state{font-size:7px;padding:2px 4px;top:4px;left:4px}
+  .reticle i{width:12px;height:12px}
+}
+@media(max-width:420px){
+  .chambers{gap:4px}
+  .ch-name{font-size:7px;letter-spacing:.03em}
 }
 
 /* ---------- sections ---------- */
@@ -712,27 +745,29 @@ footer{border-top:1px solid var(--edge);padding:44px 0 56px;background:var(--ste
         </div>
 
         <div class="chambers" id="chambers">
-          <div class="ch" data-champ="Fizz" data-key="Fizz">
+          <div role="button" tabindex="0" class="ch" data-champ="Fizz" data-key="Fizz">
             <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Fizz_0.jpg" alt="Fizz">
             <span class="ch-state">Hover</span><span class="ch-name">Fizz</span>
           </div>
-          <div class="ch" data-champ="Talon" data-key="Talon">
+          <div role="button" tabindex="0" class="ch" data-champ="Talon" data-key="Talon">
             <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Talon_0.jpg" alt="Talon">
             <span class="ch-state">Hover</span><span class="ch-name">Talon</span>
           </div>
-          <div class="ch is-sealed" data-champ="Viktor" data-key="Viktor">
+          <div role="button" tabindex="0" aria-disabled="true" class="ch is-sealed" data-champ="Viktor" data-key="Viktor">
             <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Viktor_0.jpg" alt="Viktor">
             <span class="ch-state">Banned</span><span class="ch-name">Viktor</span>
           </div>
-          <div class="ch" data-champ="Katarina" data-key="Katarina">
+          <div role="button" tabindex="0" class="ch" data-champ="Katarina" data-key="Katarina">
             <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Katarina_0.jpg" alt="Katarina">
             <span class="ch-state">Hover</span><span class="ch-name">Katarina</span>
           </div>
-          <div class="ch" data-champ="Twisted Fate" data-key="TwistedFate">
+          <div role="button" tabindex="0" class="ch" data-champ="Twisted Fate" data-key="TwistedFate">
             <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/loading/TwistedFate_0.jpg" alt="Twisted Fate">
             <span class="ch-state">Hover</span><span class="ch-name">Twisted Fate</span>
           </div>
         </div>
+
+        <span class="pickhint">Click a chamber to change the pick</span>
 
         <div class="foreign">
           <img class="foreign-art" src="https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Camille_0.jpg" alt="Camille">
@@ -953,6 +988,10 @@ footer{border-top:1px solid var(--edge);padding:44px 0 56px;background:var(--ste
   function placeReticle(el){
     if(!el||!reticle)return;
     var r=rack.getBoundingClientRect(), c=el.getBoundingClientRect();
+    // a hidden or not-yet-laid-out chamber measures zero; parking the
+    // reticle at 0,0 would leave a stray bracket in the corner
+    if(c.width<2||c.height<2){reticle.style.opacity='0';return;}
+    reticle.style.opacity='';
     if(!reticleReady){reticle.style.transition='none';}
     reticle.style.left=(c.left-r.left)+'px';
     reticle.style.top=(c.top-r.top)+'px';
@@ -1002,6 +1041,44 @@ footer{border-top:1px solid var(--edge);padding:44px 0 56px;background:var(--ste
   }
 
   btns.forEach(function(b){b.addEventListener('click',function(){set(b.dataset.p,true)})});
+
+  // Let the visitor drive it: pick any champion in the pool.
+  function choose(el){
+    if(el.classList.contains('is-sealed')){
+      el.classList.remove('shake');
+      void el.offsetWidth;              // restart the animation
+      el.classList.add('shake');
+      return;
+    }
+    var i=pool.indexOf(el);
+    if(i<0)return;
+    idx=i;
+    manual=true;
+    clearInterval(timer);
+    var phase=rack.dataset.phase;
+    if(phase==='dormant'||phase==='armed'){
+      set('scanning',true);
+    }else if(phase==='locked'){
+      // replay the lock-in so the new champion gets the full payoff
+      rack.dataset.phase='scanning';
+      markActive(idx);
+      requestAnimationFrame(function(){set('locked',true)});
+      return;
+    }else{
+      markActive(idx);
+      el_readout_hover(pool[idx].dataset.champ);
+    }
+  }
+  function el_readout_hover(name){
+    if(rack.dataset.phase!=='alarm')el.hover.textContent=name;
+  }
+
+  chambers.forEach(function(c){
+    c.addEventListener('click',function(){choose(c)});
+    c.addEventListener('keydown',function(ev){
+      if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();choose(c);}
+    });
+  });
 
   if(!reduce){
     timer=setInterval(function(){
